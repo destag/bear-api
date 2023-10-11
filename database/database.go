@@ -6,7 +6,18 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func Connect(name string) *sqlx.DB {
+var schema = `
+CREATE TABLE IF NOT EXISTS bears (
+	id INTEGER PRIMARY KEY,
+	name TEXT NOT NULL
+);
+`
+
+type Database struct {
+	conn *sqlx.DB
+}
+
+func Connect(name string) *Database {
 	db, err := sqlx.Connect("sqlite3", name)
 	if err != nil {
 		log.Fatalln(err)
@@ -17,5 +28,9 @@ func Connect(name string) *sqlx.DB {
 		log.Fatalln(err)
 	}
 
-	return db
+	return &Database{db}
+}
+
+func (db *Database) Migrate() {
+	db.conn.MustExec(schema)
 }
