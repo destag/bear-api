@@ -4,15 +4,21 @@ import (
 	"log"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/uptrace/opentelemetry-go-extra/otelsql"
+	"github.com/uptrace/opentelemetry-go-extra/otelsqlx"
+	semconv "go.opentelemetry.io/otel/semconv/v1.19.0"
 )
 
-func Connect(name string) *sqlx.DB {
-	db, err := sqlx.Connect("sqlite3", name)
-	if err != nil {
-		log.Fatalln(err)
-	}
+// import (
+//     _ "modernc.org/sqlite"
+// )
 
-	err = db.Ping()
+// db, err := otelsqlx.Open("sqlite", "file::memory:?cache=shared",
+// 	otelsql.WithAttributes(semconv.DBSystemSqlite))
+
+func Connect(name string) *sqlx.DB {
+	db, err := otelsqlx.Connect("sqlite3", name,
+		otelsql.WithAttributes(semconv.DBSystemSqlite))
 	if err != nil {
 		log.Fatalln(err)
 	}
